@@ -1,0 +1,37 @@
+local Plugin = {
+    ["PluginName"] = "fancy goto's",
+    ["PluginDescription"] = "Try using ;backshot [player]",
+    ["Commands"] = {
+        ["Fancy-GoTo"] = {
+            ["ListName"] = "backshot [player]",
+            ["Description"] = "Teleports you behind a player",
+            ["Aliases"] = {},
+            ["Function"] = function()
+                addcmd('backshot', {}, function(args, speaker)
+                    local targetPlayer = getPlayer(args[1])
+                    if not targetPlayer or not targetPlayer.Character then return end
+
+                    local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    local myHRP = speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")
+
+                    if targetHRP and myHRP then
+                        -- Faz o personagem do speaker ficar atrás do outro jogador (5 studs de distância)
+                        local behindPosition = targetHRP.CFrame * CFrame.new(0, 0, 5)
+                        
+                        -- Força o jogador a sair de assentos, se necessário
+                        local humanoid = speaker.Character:FindFirstChildOfClass("Humanoid")
+                        if humanoid and humanoid.SeatPart then
+                            humanoid.Sit = false
+                            task.wait(0.1)
+                        end
+
+                        task.wait(0.1)
+                        myHRP.CFrame = behindPosition
+                    end
+                end)
+            end
+        }
+    }
+}
+
+return Plugin
