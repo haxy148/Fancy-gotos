@@ -1,26 +1,31 @@
+-- Carrega a biblioteca de teleportes do GitHub
+loadstring(game:HttpGet("https://raw.githubusercontent.com/haxy148/Fancy-gotos/refs/heads/main/FGoTo.iy"))()
+
+-- Define o plugin com o comando personalizado
 local Plugin = {
     ["PluginName"] = "fancy goto's",
     ["PluginDescription"] = "Try using ;backshot [player]",
     ["Commands"] = {
-        ["Fancy-GoTo"] = {
+        ["Backshot"] = {
             ["ListName"] = "backshot [player]",
-            ["Description"] = "Teleports you behind a player and loads FGoTo.iy",
+            ["Description"] = "Teleports you behind a player",
             ["Aliases"] = {},
             ["Function"] = function()
                 addcmd('backshot', {}, function(args, speaker)
-                    -- Carrega o FGoTo.iy do GitHub
-                    loadstring(game:HttpGet("https://raw.githubusercontent.com/haxy148/Fancy-gotos/refs/heads/main/FGoTo.iy"))()
-
-                    -- Código para teleporte atrás do jogador
                     local targetPlayer = getPlayer(args[1])
-                    if not targetPlayer or not targetPlayer.Character then return end
+                    if not targetPlayer or not targetPlayer.Character then
+                        notify("Backshot", "Player not found or not loaded.")
+                        return
+                    end
 
                     local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
                     local myHRP = speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")
 
                     if targetHRP and myHRP then
-                        local behindPosition = targetHRP.CFrame * CFrame.new(0, 0, 5)
+                        -- Posição 5 studs atrás do alvo
+                        local behindCFrame = targetHRP.CFrame * CFrame.new(0, 0, 5)
 
+                        -- Sair do assento se estiver sentado
                         local humanoid = speaker.Character:FindFirstChildOfClass("Humanoid")
                         if humanoid and humanoid.SeatPart then
                             humanoid.Sit = false
@@ -28,7 +33,10 @@ local Plugin = {
                         end
 
                         task.wait(0.1)
-                        myHRP.CFrame = behindPosition
+                        myHRP.CFrame = behindCFrame
+                        notify("Backshot", "Teleported behind " .. targetPlayer.Name)
+                    else
+                        notify("Backshot", "Couldn't find HumanoidRootParts.")
                     end
                 end)
             end
