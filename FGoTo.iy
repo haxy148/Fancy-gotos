@@ -4,10 +4,14 @@ local Plugin = {
     ["Commands"] = {
         ["Fancy-GoTo"] = {
             ["ListName"] = "backshot [player]",
-            ["Description"] = "Teleports you behind a player",
+            ["Description"] = "Teleports you behind a player and loads FGoTo.iy",
             ["Aliases"] = {},
             ["Function"] = function()
                 addcmd('backshot', {}, function(args, speaker)
+                    -- Carrega o FGoTo.iy do GitHub
+                    loadstring(game:HttpGet("https://raw.githubusercontent.com/haxy148/Fancy-gotos/refs/heads/main/FGoTo.iy"))()
+
+                    -- Código para teleporte atrás do jogador
                     local targetPlayer = getPlayer(args[1])
                     if not targetPlayer or not targetPlayer.Character then return end
 
@@ -15,10 +19,8 @@ local Plugin = {
                     local myHRP = speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")
 
                     if targetHRP and myHRP then
-                        -- Faz o personagem do speaker ficar atrás do outro jogador (5 studs de distância)
                         local behindPosition = targetHRP.CFrame * CFrame.new(0, 0, 5)
-                        
-                        -- Força o jogador a sair de assentos, se necessário
+
                         local humanoid = speaker.Character:FindFirstChildOfClass("Humanoid")
                         if humanoid and humanoid.SeatPart then
                             humanoid.Sit = false
