@@ -38,25 +38,32 @@ local Tab = Window:CreateTab("Tab Example", 128395990192836)
 local Section = Tab:CreateSection("batata")
 local Divider = Tab:CreateDivider()
 
+-- Variável para controle do noclip
+local Noclipping = false
+local NoclipConnection = nil
+
 local Button = Tab:CreateButton({
    Name = "Noclip: OFF",
    Callback = function()
-        -- Toggle do estado
-        local noclipEnabled = not Button.noclipEnabled
-        Button.noclipEnabled = noclipEnabled
+        -- Inverte o estado
+        Noclipping = not Noclipping
         
-        -- Atualizar texto do botão
-        Button:SetText("Noclip: " .. (noclipEnabled and "ON" or "OFF"))
+        -- Atualiza o texto do botão
+        Button:SetText("Noclip: " .. (Noclipping and "ON" or "OFF"))
         
-        if noclipEnabled then
+        if Noclipping then
             -- Iniciar noclip
-            local speaker = game:GetService("Players").LocalPlayer
+            local player = game:GetService("Players").LocalPlayer
             local floatName = "NomeDaParte" -- DEFINA O NOME DO SEU FLOAT AQUI
             
-            -- Armazenar a conexão para poder desconectar depois
-            Button.NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
-                if speaker.Character then
-                    for _, child in pairs(speaker.Character:GetDescendants()) do
+            -- Conectar ao loop de noclip
+            if NoclipConnection then
+                NoclipConnection:Disconnect()
+            end
+            
+            NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
+                if player.Character then
+                    for _, child in pairs(player.Character:GetDescendants()) do
                         if child:IsA("BasePart") and child.CanCollide and child.Name ~= floatName then
                             child.CanCollide = false
                         end
@@ -65,15 +72,15 @@ local Button = Tab:CreateButton({
             end)
         else
             -- Parar noclip
-            if Button.NoclipConnection then
-                Button.NoclipConnection:Disconnect()
-                Button.NoclipConnection = nil
+            if NoclipConnection then
+                NoclipConnection:Disconnect()
+                NoclipConnection = nil
             end
             
             -- Restaurar colisões
-            local speaker = game:GetService("Players").LocalPlayer
-            if speaker.Character then
-                for _, child in pairs(speaker.Character:GetDescendants()) do
+            local player = game:GetService("Players").LocalPlayer
+            if player.Character then
+                for _, child in pairs(player.Character:GetDescendants()) do
                     if child:IsA("BasePart") then
                         child.CanCollide = true
                     end
@@ -82,6 +89,3 @@ local Button = Tab:CreateButton({
         end
    end,
 })
-
--- Inicializar estado do noclip
-Button.noclipEnabled = false
