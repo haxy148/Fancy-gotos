@@ -5,7 +5,7 @@ local RunService = game:GetService("RunService")
 wait(1)
 
 local Window = Rayfield:CreateWindow({
-   Name = "Rayfield Example Window",
+   Name = "148 Hub",
    Icon = 0,
    LoadingTitle = "148 hub",
    LoadingSubtitle = "Made By Haxy148",
@@ -15,8 +15,8 @@ local Window = Rayfield:CreateWindow({
    DisableBuildWarnings = false,
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil,
-      FileName = "148 Hub"
+      FolderName = "148HubConfigs",
+      FileName = "Settings"
    },
    Discord = {
       Enabled = false,
@@ -25,54 +25,72 @@ local Window = Rayfield:CreateWindow({
    },
    KeySystem = false,
    KeySettings = {
-      Title = "Untitled",
+      Title = "148 Hub",
       Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided",
-      FileName = "Key",
+      Note = "Contact developer for key",
+      FileName = "148Key",
       SaveKey = true,
       GrabKeyFromSite = false,
-      Key = {"Hello"}
+      Key = {"148Access"}
    }
 })
 
-local Tab = Window:CreateTab("Tab Example", 128395990192836)
+local Tab = Window:CreateTab("Character", 128395990192836)
 
-local Section = Tab:CreateSection("batata")
-local Divider = Tab:CreateDivider()
-
--- Variável para controle do noclip
+-- Sistema Noclip melhorado
 local Noclipping = false
 local NoclipConnection = nil
 
-local Button = Tab:CreateButton({
+local function NoclipLoop()
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+    end
+    
+    NoclipConnection = RunService.Stepped:Connect(function()
+        local character = Players.LocalPlayer.Character
+        if character then
+            for _, child in ipairs(character:GetDescendants()) do
+                if child:IsA("BasePart") and child.CanCollide then
+                    child.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+local NoclipButton = Tab:CreateButton({
    Name = "Noclip: OFF",
    Callback = function()
         Noclipping = not Noclipping
-        local player = Players.LocalPlayer
         
         if Noclipping then
-            Button:Set("Noclip: ON")
-            
-            -- Conexão para desativar colisões
-            if NoclipConnection then
-                NoclipConnection:Disconnect()
-            end
-            NoclipConnection = RunService.Stepped:Connect(function()
-                if player.Character then
-                    for _, part in ipairs(player.Character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
-                    end
-                end
-            end)
-            
+            NoclipButton:Set("Noclip: ON")
+            NoclipLoop()
+            Rayfield:Notify({
+                Title = "Noclip Ativado",
+                Content = "Você agora pode atravessar paredes",
+                Duration = 3,
+                Image = 0,
+            })
         else
-            Button:Set("Noclip: OFF")
+            NoclipButton:Set("Noclip: OFF")
             if NoclipConnection then
                 NoclipConnection:Disconnect()
                 NoclipConnection = nil
             end
+            Rayfield:Notify({
+                Title = "Noclip Desativado",
+                Content = "Colisões normais restauradas",
+                Duration = 3,
+                Image = 0,
+            })
         end
-   end
+   end,
 })
+
+-- Reaplicar noclip quando o personagem morrer/respawnar
+Players.LocalPlayer.CharacterAdded:Connect(function()
+    if Noclipping then
+        NoclipLoop()
+    end
+end)
