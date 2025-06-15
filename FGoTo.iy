@@ -4,61 +4,84 @@ wait(1)
 
 local Window = Rayfield:CreateWindow({
    Name = "Rayfield Example Window",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   Icon = 0,
    LoadingTitle = "148 hub",
    LoadingSubtitle = "Made By Haxy148",
-   Theme = "Dark", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   ToggleUIKeybind = "M", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
-
+   Theme = "Dark",
+   ToggleUIKeybind = "M",
    DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
-
+   DisableBuildWarnings = false,
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
+      FolderName = nil,
       FileName = "148 Hub"
    },
-
    Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
    },
-
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = false,
    KeySettings = {
       Title = "Untitled",
       Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
    }
 })
 
 local Tab = Window:CreateTab("Tab Example", 128395990192836)
 
 local Section = Tab:CreateSection("batata")
-
 local Divider = Tab:CreateDivider()
 
 local Button = Tab:CreateButton({
-   Name = "batatauga",
-local Noclipping = nil
+   Name = "Noclip: OFF",
    Callback = function()
-	Clip = false
-	wait(0.1)
-	local function NoclipLoop()
-		if Clip == false and speaker.Character ~= nil then
-			for _, child in pairs(speaker.Character:GetDescendants()) do
-				if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= floatName then
-					child.CanCollide = false
-				end
-			end
-		end
-	end
-   -- The function that takes place when the button is pressed
+        -- Toggle do estado
+        local noclipEnabled = not Button.noclipEnabled
+        Button.noclipEnabled = noclipEnabled
+        
+        -- Atualizar texto do botão
+        Button:SetText("Noclip: " .. (noclipEnabled and "ON" or "OFF"))
+        
+        if noclipEnabled then
+            -- Iniciar noclip
+            local speaker = game:GetService("Players").LocalPlayer
+            local floatName = "NomeDaParte" -- DEFINA O NOME DO SEU FLOAT AQUI
+            
+            -- Armazenar a conexão para poder desconectar depois
+            Button.NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
+                if speaker.Character then
+                    for _, child in pairs(speaker.Character:GetDescendants()) do
+                        if child:IsA("BasePart") and child.CanCollide and child.Name ~= floatName then
+                            child.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        else
+            -- Parar noclip
+            if Button.NoclipConnection then
+                Button.NoclipConnection:Disconnect()
+                Button.NoclipConnection = nil
+            end
+            
+            -- Restaurar colisões
+            local speaker = game:GetService("Players").LocalPlayer
+            if speaker.Character then
+                for _, child in pairs(speaker.Character:GetDescendants()) do
+                    if child:IsA("BasePart") then
+                        child.CanCollide = true
+                    end
+                end
+            end
+        end
    end,
 })
+
+-- Inicializar estado do noclip
+Button.noclipEnabled = false
