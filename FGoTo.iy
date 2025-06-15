@@ -1,4 +1,6 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 wait(1)
 
@@ -45,47 +47,32 @@ local NoclipConnection = nil
 local Button = Tab:CreateButton({
    Name = "Noclip: OFF",
    Callback = function()
-        -- Inverte o estado
         Noclipping = not Noclipping
-        
-        -- Atualiza o texto do botão
-        Button:SetText("Noclip: " .. (Noclipping and "ON" or "OFF"))
+        local player = Players.LocalPlayer
         
         if Noclipping then
-            -- Iniciar noclip
-            local player = game:GetService("Players").LocalPlayer
-            local floatName = "NomeDaParte" -- DEFINA O NOME DO SEU FLOAT AQUI
+            Button:Set("Noclip: ON")
             
-            -- Conectar ao loop de noclip
+            -- Conexão para desativar colisões
             if NoclipConnection then
                 NoclipConnection:Disconnect()
             end
-            
-            NoclipConnection = game:GetService("RunService").Stepped:Connect(function()
+            NoclipConnection = RunService.Stepped:Connect(function()
                 if player.Character then
-                    for _, child in pairs(player.Character:GetDescendants()) do
-                        if child:IsA("BasePart") and child.CanCollide and child.Name ~= floatName then
-                            child.CanCollide = false
+                    for _, part in ipairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
                         end
                     end
                 end
             end)
+            
         else
-            -- Parar noclip
+            Button:Set("Noclip: OFF")
             if NoclipConnection then
                 NoclipConnection:Disconnect()
                 NoclipConnection = nil
             end
-            
-            -- Restaurar colisões
-            local player = game:GetService("Players").LocalPlayer
-            if player.Character then
-                for _, child in pairs(player.Character:GetDescendants()) do
-                    if child:IsA("BasePart") then
-                        child.CanCollide = true
-                    end
-                end
-            end
         end
-   end,
+   end
 })
